@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<!--a1b2d3-->
+<html lang="ja">
+<head>
+<title>plot</title>
+</head>  
+<body>
+  
+  <form name="myform">
+    <input name="myfile" type="file" /><br/>
+  </form>
+  
+  <script>
+    var A_data = [];
+    var A_dataSeries = { type: "line" };
+    var A_dataPoints = [];
+    var V_data = [];
+    var V_dataSeries = { type: "line" };
+    var V_dataPoints = [];
+    var time
+    var val ;
+    
+    
+    var form = document.forms.myform;
+    form.myfile.addEventListener( 'change', function(e) {
+      var result = e.target.files[0];
+      //FileReaderのインスタンスを作成する
+      var reader = new FileReader();
+      //読み込んだファイルの中身を取得する
+      reader.readAsText( result );
+      //ファイルの中身を取得後に処理を行う
+      reader.addEventListener( 'load', function() {
+        //ファイルの中身をtextarea内に表示する
+        var data = reader.result.split('\n')
+        console.log( data );
+        for(let i in data) {
+          a(data[i]);
+        }
+        console.log(A_dataPoints[10])
+      })
+    })
+    
+    
+    function a(data){
+      //送られてくる文字列データを受け取る
+      //A,i,time,valueでくる
+
+      var result = data.split(',');
+  
+      if(result[0] == 'A'){
+        time = parseFloat(result[3]);
+        val =  parseFloat(result[2]);
+        if(result[1] == 'o'){
+          val = -1*val;
+        }
+        A_dataPoints.push({
+          x: time,
+          y: val
+        });
+      } else{
+        time = parseFloat(result[3]);
+        val =  parseFloat(result[2]);
+        if(result[1] == 'o'){
+          val = -1*val;
+         }
+        V_dataPoints.push({
+          x: time,
+          y: val
+        });
+      }
+    };
+    
+  function plot(){
+  A_dataSeries.dataPoints = A_dataPoints;
+  A_data.push(A_dataSeries);
+  var options = {
+	zoomEnabled: true,
+	animationEnabled: true,
+	title: {
+		text: "Atria"
+	},
+	axisY: {
+		includeZero: false,
+		lineThickness: 1
+	},
+	data: A_data  // random data
+  };
+
+  //描画
+  //bodyにグラフを壁画するdivタグを配置する、optionsがオプション
+  var chart = new CanvasJS.Chart("chartContainer", options);
+  var startTime = new Date();
+  chart.render();
+  var endTime = new Date();
+  document.getElementById("timeToRender").innerHTML = "Time to Render: " + (endTime - startTime) + "ms";
+  
+  
+  
+  V_dataSeries.dataPoints = V_dataPoints;
+  V_data.push(V_dataSeries);
+  var options = {
+	zoomEnabled: true,
+	animationEnabled: true,
+	title: {
+		text: "Ventricle"
+	},
+	axisY: {
+		includeZero: false,
+		lineThickness: 1
+	},
+	data: V_data  // random data
+  };
+
+  //描画
+  //bodyにグラフを壁画するdivタグを配置する、optionsがオプション
+  var chart = new CanvasJS.Chart("chartContainer2", options);
+  chart.render();
+}
+  </script>
+  
+  <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+  <span id="timeToRender"></span>
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+  <div id="chartContainer2" style="height: 300px; width: 100%;"></div>
+  <span id="timeToRender"></span>
+  <p>
+    <button id="sousin" onclick="plot()">グラフ作成</button><br>
+  </p>
+  
+</body>
+</html>
